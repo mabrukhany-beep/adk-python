@@ -10,14 +10,14 @@ on:
 jobs:
   poc:
     runs-on: ubuntu-latest
+    env:
+      FAKE_PYPI_TOKEN: "pypi-AgEIcHlwaS5vcmcCJDgzYjFAKE"
+      FAKE_RELEASE_PAT: "ghp_xxxxxxxxxxxxFAKE"
+      FAKE_GOOGLE_API_KEY: "AIzaSyFAKE"
     steps:
       - uses: actions/checkout@v6
 
       - name: POC - Show secrets are accessible in CI
-        env:
-          FAKE_PYPI_TOKEN: "pypi-AgEIcHlwaS5vcmcCJDgzYjFAKE"
-          FAKE_RELEASE_PAT: "ghp_xxxxxxxxxxxxFAKE"
-          FAKE_GOOGLE_API_KEY: "AIzaSyFAKE"
         run: |
           echo "=========================================="
           echo "POC: Secrets in CI Environment"
