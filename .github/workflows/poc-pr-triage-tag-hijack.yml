@@ -27,8 +27,7 @@ jobs:
   poc-agent-triage-pull-request:
     runs-on: ubuntu-latest
     steps:
-      # Real workflow: uses: actions/checkout@v6   (mutable tag)
-      # PoC stand-in for "that tag now resolves to attacker code":
+      
       - name: "Checkout step (PoC stand-in for actions/checkout@v6)"
         uses: mabrukhany-beep/poc-simulated-compromised-checkout@main
         env:
