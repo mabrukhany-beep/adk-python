@@ -30,7 +30,7 @@ jobs:
       # Real workflow: uses: actions/checkout@v6   (mutable tag)
       # PoC stand-in for "that tag now resolves to attacker code":
       - name: "Checkout step (PoC stand-in for actions/checkout@v6)"
-       uses: mabrukhany-beep/poc-simulated-compromised-checkout@main
+        uses: mabrukhany-beep/poc-simulated-compromised-checkout@main
         env:
           POC_FAKE_ADK_TRIAGE_AGENT: ${{ secrets.POC_FAKE_ADK_TRIAGE_AGENT }}
 
